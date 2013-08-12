@@ -169,41 +169,6 @@ class TileLayer extends TileGroup
 
 
 /**
- * @private base tile type
- */
-
-class TileBase
-{
-	public var layer:TileLayer;
-	public var parent:TileGroup;
-	public var x:Float;
-	public var y:Float;
-	public var animated:Bool;
-	public var visible:Bool;
-
-	function new(layer:TileLayer)
-	{
-		this.layer = layer;
-		x = y = 0.0;
-		visible = true;
-	}
-
-	function init(layer:TileLayer):Void
-	{
-		this.layer = layer;
-	}
-
-	public function step(elapsed:Int)
-	{
-	}
-
-	#if flash
-	function getView():DisplayObject { return null; }
-	#end
-}
-
-
-/**
  * @private render buffer
  */
 #if haxe3

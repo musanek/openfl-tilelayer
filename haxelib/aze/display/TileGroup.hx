@@ -18,6 +18,9 @@ class TileGroup extends TileBase
 	#if flash
 	var container:Sprite;
 	#end
+	
+	public var lastHeight:Float;
+	public var lastWidth:Float;
 
 	public function new(layer:TileLayer)
 	{
@@ -26,6 +29,9 @@ class TileGroup extends TileBase
 		#if flash
 		container = new Sprite();
 		#end
+		
+		lastHeight = -1;
+		lastWidth = -1;
 	}
 
 	override public function init(layer:TileLayer):Void
@@ -58,6 +64,9 @@ class TileGroup extends TileBase
 
 	public function addChild(item:TileBase):Int
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		removeChild(item);
 		#if flash
 		container.addChild(item.getView());
@@ -68,6 +77,9 @@ class TileGroup extends TileBase
 
 	public function addChildAt(item:TileBase, index:Int):Int
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		removeChild(item);
 		#if flash
 		container.addChildAt(item.getView(), index);
@@ -79,6 +91,9 @@ class TileGroup extends TileBase
 
 	public function removeChild(item:TileBase):TileBase
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		if (item.parent == null) return item;
 		if (item.parent != this) {
 			trace("Invalid parent");
@@ -98,6 +113,9 @@ class TileGroup extends TileBase
 
 	public function removeChildAt(index:Int):TileBase
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		#if flash
 		container.removeChildAt(index);
 		#end
@@ -108,6 +126,9 @@ class TileGroup extends TileBase
 
 	public function removeAllChildren():Array<TileBase>
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		#if flash
 		while (container.numChildren > 0) container.removeChildAt(0);
 		#end
@@ -123,6 +144,9 @@ class TileGroup extends TileBase
 	
 	public function setChildIndex(item:TileBase, index:Int) 
 	{
+		lastHeight = -1;
+		lastWidth = -1;
+		
 		var oldIndex = indexOf(item);
 		if (oldIndex >= 0 && index != oldIndex) 
 		{
@@ -140,36 +164,44 @@ class TileGroup extends TileBase
 	inline function get_numChildren() { return children != null ? children.length : 0; }
 
 	public var height(get_height, null):Float; // TOFIX incorrect with sub groups
-	function get_height():Float 
+	public function get_height():Float 
 	{
 		if (numChildren == 0) return 0;
 		var ymin = 9999.0, ymax = -9999.0;
-		for(child in children)
-			if (Std.is(child, TileSprite)) {
-				var sprite:TileSprite = cast child;
-				var h = sprite.height;
-				var top = sprite.y - h/2;
-				var bottom = top + h;
-				if (top < ymin) ymin = top;
-				if (bottom > ymax) ymax = bottom;
-			}
-		return ymax - ymin;
+		if (lastHeight == -1) {
+			for(child in children)
+				if (Std.is(child, TileSprite)) {
+					var sprite:TileSprite = cast child;
+					var h = sprite.height;
+					var top = sprite.y - h/2;
+					var bottom = top + h;
+					if (top < ymin) ymin = top;
+					if (bottom > ymax) ymax = bottom;
+				}
+			lastHeight = ymax - ymin;
+		}
+		
+		return lastHeight;
 	}
-
+	
 	public var width(get_width, null):Float; // TOFIX incorrect with sub groups
-	function get_width():Float 
+	public function get_width():Float 
 	{
 		if (numChildren == 0) return 0;
-		var xmin = 9999.0, xmax = -9999.0;
-		for(child in children)
-			if (Std.is(child, TileSprite)) {
-				var sprite:TileSprite = cast child;
-				var w = sprite.width;
-				var left = sprite.x - w/2;
-				var right = left + w;
-				if (left < xmin) xmin = left;
-				if (right > xmax) xmax = right;
-			}
-		return xmax - xmin;
+		
+		if (lastWidth == -1) {
+			var xmin = 9999.0, xmax = -9999.0;
+			for(child in children)
+				if (Std.is(child, TileSprite)) {
+					var sprite:TileSprite = cast child;
+					var w = sprite.width;
+					var left = sprite.x - w/2;
+					var right = left + w;
+					if (left < xmin) xmin = left;
+					if (right > xmax) xmax = right;
+				}
+			lastWidth = xmax - xmin;
+		}
+		return lastWidth;
 	}
 }
