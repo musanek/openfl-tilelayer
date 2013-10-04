@@ -4,8 +4,17 @@ import flash.display.BitmapData;
 import openfl.display.Tilesheet;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flash.geom.Point;
 
 using StringTools;
+
+typedef TileDef = {
+	name : String,
+	size : Rectangle,
+	?bitmap : BitmapData,
+	?center : Point
+}
+
 
 /**
  * A cross-targets Tilesheet container, with animation and trimming support
@@ -20,8 +29,7 @@ using StringTools;
 class TilesheetEx extends Tilesheet
 {
 	public var scale:Float;
-	var defs:Array<String>;
-	var sizes:Array<Rectangle>;
+	var tileDefs : Array<TileDef>;
 
 	#if haxe3
 		var anims:Map<String,Array<Int>>;
@@ -39,32 +47,25 @@ class TilesheetEx extends Tilesheet
 
 		scale = 1/textureScale;
 		
-		defs = new Array<String>();
+		tileDefs = new Array<TileDef>();
 
 		#if haxe3
-			anims = new Map < String, Array<Int> > ();
+			anims = new Map<String, Array<Int>>();
 		#else
-			anims = new Hash <Array<Int> > ();
+			anims = new Hash<Array<Int>>();
 		#end
 
-		sizes = new Array<Rectangle>();
-		#if flash
-		bmps = new Array<BitmapData>();
-		#end
 	}
 
 	#if flash
 	public function addDefinition(name:String, size:Rectangle, bmp:BitmapData)
 	{
-		defs.push(name);
-		sizes.push(size);
-		bmps.push(bmp);
+		tileDefs.push({name : name, size : size, bitmap : bmp});
 	}
 	#else
 	public function addDefinition(name:String, size:Rectangle, rect:Rectangle, center:Point)
 	{
-		defs.push(name);
-		sizes.push(size);
+		tileDefs.push({name : name, size : size, center : center});
 		addTileRect(rect, center);
 	}
 	#end
@@ -74,25 +75,33 @@ class TilesheetEx extends Tilesheet
 		if (anims.exists(name))
 			return anims.get(name);
 		var indices = new Array<Int>();
-		for (i in 0...defs.length)
+		for (i in 0...tileDefs.length)
 		{
-			if (defs[i].startsWith(name)) 
+			if (tileDefs[i].name.startsWith(name)) 
 				indices.push(i);
 		}
 		anims.set(name, indices);
 		return indices;
 	}
 
+	public function getDefinition(name : String) : TileDef {
+		var indexes = getAnim(name);
+		if (indexes.length > 0) {
+			return tileDefs[indexes[0]];	
+		}
+		return null;
+	}
+
 	inline public function getSize(indice:Int):Rectangle
 	{
-		if (indice < sizes.length) return sizes[indice];
+		if (indice < tileDefs.length) return tileDefs[indice].size;
 		else return new Rectangle();
 	}
 
 	#if flash
 	inline public function getBitmap(indice:Int):BitmapData
 	{
-		return bmps[indice];
+		return tileDefs[indice].bitmap;
 	}
 	#end
 

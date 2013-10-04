@@ -1,5 +1,7 @@
 package aze.display;
 
+import flash.display.DisplayObject;
+
 /**
  * @private base tile type
  */
