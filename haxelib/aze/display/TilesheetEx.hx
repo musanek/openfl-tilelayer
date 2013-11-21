@@ -11,6 +11,7 @@ using StringTools;
 typedef TileDef = {
 	name : String,
 	size : Rectangle,
+	rect : Rectangle,
 	?bitmap : BitmapData,
 	?center : Point
 }
@@ -58,14 +59,14 @@ class TilesheetEx extends Tilesheet
 	}
 
 	#if flash
-	public function addDefinition(name:String, size:Rectangle, bmp:BitmapData)
+	public function addDefinition(name:String, size:Rectangle, rect:Rectangle, bmp:BitmapData)
 	{
-		tileDefs.push({name : name, size : size, bitmap : bmp});
+		tileDefs.push({name : name, size : size, bitmap : bmp, rect : rect});
 	}
 	#else
 	public function addDefinition(name:String, size:Rectangle, rect:Rectangle, center:Point)
 	{
-		tileDefs.push({name : name, size : size, center : center});
+		tileDefs.push({name : name, size : size, center : center, rect : rect});
 		addTileRect(rect, center);
 	}
 	#end
@@ -138,11 +139,11 @@ class TilesheetEx extends Tilesheet
 		for(i in 0...images.length)
 		{
 			var image = images[i];
+			var rect = new Rectangle(padding, pos.y, image.width, image.height);
 			img.copyPixels(image, image.rect, pos, null, null, true);
 			#if flash
-			sheet.addDefinition(names[i], image.rect, image);
+			sheet.addDefinition(names[i], image.rect, rect, image);
 			#else
-			var rect = new Rectangle(padding, pos.y, image.width, image.height);
 			var center = new Point(image.width/2, image.height/2);
 			sheet.addDefinition(names[i], image.rect, rect, center);
 			#end

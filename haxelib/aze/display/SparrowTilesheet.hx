@@ -43,7 +43,7 @@ class SparrowTilesheet extends TilesheetEx
 			ins.x = -size.left;
 			ins.y = -size.top;
 			bmp.copyPixels(img, rect, ins);
-			addDefinition(name, size, bmp);
+			addDefinition(name, size, rect, bmp);
 			#else
 			var center = new Point((size.x + size.width / 2), (size.y + size.height / 2));
 			addDefinition(name, size, rect, center);
