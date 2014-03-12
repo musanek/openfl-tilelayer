@@ -1,0 +1,14 @@
+-main ApplicationMain 
+-lib openfl
+-cp src
+-cp ../haxelib
+-D tools=1
+-D openfl_ver=1.0.9
+-D openfl
+-D web
+-dce std
+-swf-version 11
+-swf bin/flash/bin/tost.swf
+-swf-header 800:480:60:000000
+-cp bin/flash/haxe
+#--remap nme:flash

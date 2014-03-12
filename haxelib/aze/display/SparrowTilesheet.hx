@@ -24,6 +24,11 @@ class SparrowTilesheet extends TilesheetEx
 
 		for (texture in x.nodes.SubTexture)
 		{
+
+			// for (at in texture.x.attributes()) {
+			// 	trace(at);
+			// }
+
 			var name = texture.att.name;
 			var rect = new Rectangle(
 				Std.parseFloat(texture.att.x), Std.parseFloat(texture.att.y),
@@ -43,7 +48,7 @@ class SparrowTilesheet extends TilesheetEx
 			ins.x = -size.left;
 			ins.y = -size.top;
 			bmp.copyPixels(img, rect, ins);
-			addDefinition(name, size, bmp);
+			addDefinition(name, size, rect, bmp);
 			#else
 			var center = new Point((size.x + size.width / 2), (size.y + size.height / 2));
 			addDefinition(name, size, rect, center);

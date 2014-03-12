@@ -11,6 +11,7 @@ using StringTools;
 typedef TileDef = {
 	name : String,
 	size : Rectangle,
+	rect : Rectangle,	
 	?bitmap : BitmapData,
 	?center : Point
 }
@@ -30,11 +31,14 @@ class TilesheetEx extends Tilesheet
 {
 	public var scale:Float;
 	var tileDefs : Array<TileDef>;
+	public var tileBitmapData(default, null) : BitmapData;
 
 	#if haxe3
 		var anims:Map<String,Array<Int>>;
+		var tileNameLookup : Map<String, TileDef>;
 	#else
 		var anims:Hash<Array<Int>>;
+		var tileNameLookup : Hash<TileDef>;
 	#end
 
 	#if flash
@@ -45,28 +49,36 @@ class TilesheetEx extends Tilesheet
 	{
 		super(img);
 
+		tileBitmapData = img;
+
 		scale = 1/textureScale;
 		
 		tileDefs = new Array<TileDef>();
 
 		#if haxe3
 			anims = new Map<String, Array<Int>>();
+			tileNameLookup = new Map<String, TileDef>();
 		#else
 			anims = new Hash<Array<Int>>();
+			tileNameLookup = new Hash<String, TileDef>();
 		#end
 
 	}
 
 	#if flash
-	public function addDefinition(name:String, size:Rectangle, bmp:BitmapData)
+	public function addDefinition(name:String, size:Rectangle, rect:Rectangle, bmp:BitmapData)
 	{
-		tileDefs.push({name : name, size : size, bitmap : bmp});
+		var tileDef : TileDef = {name : name, size : size, bitmap : bmp, rect : rect};
+		tileDefs.push(tileDef);
+		tileNameLookup.set(name, tileDef);
 	}
 	#else
 	public function addDefinition(name:String, size:Rectangle, rect:Rectangle, center:Point)
 	{
-		tileDefs.push({name : name, size : size, center : center});
+		var tileDef : TileDef = {name : name, size : size, center : center, rect : rect};
+		tileDefs.push(tileDef);
 		addTileRect(rect, center);
+		tileNameLookup.set(name, tileDef);
 	}
 	#end
 
@@ -85,11 +97,7 @@ class TilesheetEx extends Tilesheet
 	}
 
 	public function getDefinition(name : String) : TileDef {
-		var indexes = getAnim(name);
-		if (indexes.length > 0) {
-			return tileDefs[indexes[0]];	
-		}
-		return null;
+		return tileNameLookup.get(name);
 	}
 
 	inline public function getSize(indice:Int):Rectangle
@@ -104,6 +112,14 @@ class TilesheetEx extends Tilesheet
 		return tileDefs[indice].bitmap;
 	}
 	#end
+
+	public function getBitmapByName(name : String) : BitmapData {
+		var tileDef = tileNameLookup.get(name); 
+		if (tileDef != null) {
+			return tileDef.bitmap;
+		}
+		return null;
+	}	
 
 	static public function createFromAssets(fileNames:Array<String>, padding:Int=0, spacing:Int=0)
 	{
@@ -139,10 +155,10 @@ class TilesheetEx extends Tilesheet
 		{
 			var image = images[i];
 			img.copyPixels(image, image.rect, pos, null, null, true);
-			#if flash
-			sheet.addDefinition(names[i], image.rect, image);
-			#else
 			var rect = new Rectangle(padding, pos.y, image.width, image.height);
+			#if flash
+			sheet.addDefinition(names[i], image.rect, rect, image);
+			#else
 			var center = new Point(image.width/2, image.height/2);
 			sheet.addDefinition(names[i], image.rect, rect, center);
 			#end
