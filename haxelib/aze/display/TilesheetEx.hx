@@ -11,7 +11,7 @@ using StringTools;
 typedef TileDef = {
 	name : String,
 	size : Rectangle,
-	rect : Rectangle,	
+	rect : Rectangle,
 	?bitmap : BitmapData,
 	?center : Point
 }
@@ -154,6 +154,7 @@ class TilesheetEx extends Tilesheet
 		for(i in 0...images.length)
 		{
 			var image = images[i];
+			var rect = new Rectangle(padding, pos.y, image.width, image.height);
 			img.copyPixels(image, image.rect, pos, null, null, true);
 			var rect = new Rectangle(padding, pos.y, image.width, image.height);
 			#if flash
